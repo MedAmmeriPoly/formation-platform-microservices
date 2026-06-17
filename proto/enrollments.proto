@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package enrollments;
+
+// Service de gestion des inscriptions et de la progression des etudiants
+service EnrollmentsService {
+  rpc EnrollStudent (EnrollStudentRequest) returns (EnrollmentResponse);
+  rpc GetEnrollment (GetEnrollmentRequest) returns (EnrollmentResponse);
+  rpc ListEnrollmentsByStudent (ListEnrollmentsByStudentRequest) returns (ListEnrollmentsResponse);
+  rpc ListEnrollmentsByCourse (ListEnrollmentsByCourseRequest) returns (ListEnrollmentsResponse);
+  rpc UpdateProgress (UpdateProgressRequest) returns (EnrollmentResponse);
+  rpc CompleteCourse (CompleteCourseRequest) returns (EnrollmentResponse);
+}
+
+// Statut possible d'une inscription
+enum EnrollmentStatus {
+  IN_PROGRESS = 0;
+  COMPLETED = 1;
+  CANCELLED = 2;
+}
+
+// Representation complete d'une inscription
+message Enrollment {
+  string id = 1;
+  string student_id = 2;
+  string course_id = 3;
+  EnrollmentStatus status = 4;
+  int32 progress_percent = 5;
+  repeated string completed_lesson_ids = 6;
+  string enrolled_at = 7;
+  string completed_at = 8;
+}
+
+// --- Requetes ---
+
+message EnrollStudentRequest {
+  string student_id = 1;
+  string course_id = 2;
+}
+
+message GetEnrollmentRequest {
+  string id = 1;
+}
+
+message ListEnrollmentsByStudentRequest {
+  string student_id = 1;
+}
+
+message ListEnrollmentsByCourseRequest {
+  string course_id = 1;
+}
+
+message UpdateProgressRequest {
+  string enrollment_id = 1;
+  string completed_lesson_id = 2;
+  int32 progress_percent = 3;
+}
+
+message CompleteCourseRequest {
+  string enrollment_id = 1;
+}
+
+// --- Reponses ---
+
+message EnrollmentResponse {
+  bool success = 1;
+  string message = 2;
+  Enrollment enrollment = 3;
+}
+
+message ListEnrollmentsResponse {
+  bool success = 1;
+  repeated Enrollment enrollments = 2;
+  int32 total = 3;
+}
