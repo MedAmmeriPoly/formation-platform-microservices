@@ -2,6 +2,8 @@ const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 const enrollmentService = require('./enrollmentService');
+const kafkaProducer = require('./kafkaProducer');
+const { startConsumer } = require('./kafkaUserConsumer');
 
 const PROTO_PATH = path.join(__dirname, '..', '..', '..', 'proto', 'enrollments.proto');
 
@@ -25,6 +27,12 @@ async function EnrollStudent(call, callback) {
       });
     }
     const enrollment = await enrollmentService.enrollStudent({ student_id, course_id });
+
+    // Publication asynchrone de l'evenement Kafka (ne bloque pas la reponse gRPC)
+    kafkaProducer.publishEnrollmentCreated(enrollment).catch((err) => {
+      console.error('[Kafka] Erreur publication enrollment.created:', err.message);
+    });
+
     callback(null, { success: true, message: 'Inscription creee avec succes', enrollment });
   } catch (err) {
     callback({ code: grpc.status.INTERNAL, message: err.message });
@@ -79,6 +87,11 @@ async function CompleteCourse(call, callback) {
     if (!enrollment) {
       return callback({ code: grpc.status.NOT_FOUND, message: 'Inscription introuvable' });
     }
+
+    kafkaProducer.publishCourseCompleted(enrollment).catch((err) => {
+      console.error('[Kafka] Erreur publication course.completed:', err.message);
+    });
+
     callback(null, { success: true, message: 'Cours termine avec succes', enrollment });
   } catch (err) {
     callback({ code: grpc.status.INTERNAL, message: err.message });
@@ -100,6 +113,11 @@ function main() {
   const PORT = process.env.PORT || '50053';
   server.bindAsync(`0.0.0.0:${PORT}`, grpc.ServerCredentials.createInsecure(), () => {
     console.log(`Enrollments service en ecoute sur le port ${PORT}`);
+  });
+
+  // Demarrage du consommateur Kafka en parallele (ne bloque pas le serveur gRPC)
+  startConsumer().catch((err) => {
+    console.error('[Kafka] Erreur demarrage consommateur:', err.message);
   });
 }
 

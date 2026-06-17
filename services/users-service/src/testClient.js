@@ -21,8 +21,8 @@ const client = new usersProto.UsersService(
 // 1. Creer un utilisateur
 client.CreateUser(
   {
-    full_name: 'Amine Ben Salah',
-    email: 'amine.test@example.com',
+    full_name: 'Med Ammeri',
+    email: 'test.ammeri@example.com',
     password: 'motdepasse123',
     role: 0, // STUDENT
   },

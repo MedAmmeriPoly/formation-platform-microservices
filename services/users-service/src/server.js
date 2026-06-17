@@ -2,6 +2,8 @@ const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 const userService = require('./userService');
+const { startConsumer } = require('./kafkaConsumer');
+const kafkaProducer = require('./kafkaProducer');
 
 const PROTO_PATH = path.join(__dirname, '..', '..', '..', 'proto', 'users.proto');
 
@@ -29,6 +31,12 @@ function CreateUser(call, callback) {
     }
 
     const user = userService.createUser({ full_name, email, password, role });
+
+    // Publication asynchrone de l'evenement Kafka (ne bloque pas la reponse gRPC)
+    kafkaProducer.publishUserRegistered(user).catch((err) => {
+      console.error('[Kafka] Erreur publication user.registered:', err.message);
+    });
+
     callback(null, { success: true, message: 'Utilisateur cree avec succes', user });
   } catch (err) {
     if (err.message && err.message.includes('UNIQUE constraint failed')) {
@@ -110,6 +118,11 @@ function main() {
   const PORT = process.env.PORT || '50051';
   server.bindAsync(`0.0.0.0:${PORT}`, grpc.ServerCredentials.createInsecure(), () => {
     console.log(`Users service en ecoute sur le port ${PORT}`);
+  });
+
+  // Demarrage du consommateur Kafka en parallele (ne bloque pas le serveur gRPC)
+  startConsumer().catch((err) => {
+    console.error('[Kafka] Erreur demarrage consommateur:', err.message);
   });
 }
 

@@ -1,0 +1,15 @@
+{
+    "name": "formation-platform-microservices",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Plateforme de formation en ligne - architecture microservices Node.js",
+    "dependencies": {
+        "@grpc/grpc-js": "^1.14.4",
+        "@grpc/proto-loader": "^0.8.1",
+        "better-sqlite3": "^12.11.1",
+        "kafkajs": "^2.2.4",
+        "rxdb": "^17.3.0",
+        "rxjs": "^7.8.2",
+        "uuid": "^14.0.0"
+    }
+}
