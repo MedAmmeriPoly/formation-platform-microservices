@@ -2,6 +2,7 @@ const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 const courseService = require('./courseService');
+const { startConsumer } = require('./kafkaConsumer');
 
 const PROTO_PATH = path.join(__dirname, '..', '..', '..', 'proto', 'courses.proto');
 
@@ -121,6 +122,11 @@ function main() {
   const PORT = process.env.PORT || '50052';
   server.bindAsync(`0.0.0.0:${PORT}`, grpc.ServerCredentials.createInsecure(), () => {
     console.log(`Courses service en ecoute sur le port ${PORT}`);
+  });
+
+  // Demarrage du consommateur Kafka en parallele (ne bloque pas le serveur gRPC)
+  startConsumer().catch((err) => {
+    console.error('[Kafka] Erreur demarrage consommateur:', err.message);
   });
 }
 
