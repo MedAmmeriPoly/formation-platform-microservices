@@ -63,8 +63,8 @@ function GetUser(call, callback) {
 
 function ListUsers(call, callback) {
   try {
-    const { role_filter, page, page_size } = call.request;
-    const roleFilterStr = role_filter === 1 ? 'INSTRUCTOR' : role_filter === 0 ? 'STUDENT' : null;
+    const { role_filter, has_role_filter, page, page_size } = call.request;
+    const roleFilterStr = has_role_filter ? (role_filter === 1 ? 'INSTRUCTOR' : 'STUDENT') : null;
 
     const { users, total } = userService.listUsers({
       roleFilter: roleFilterStr,

@@ -41,6 +41,7 @@ message GetUserRequest {
 
 message ListUsersRequest {
   Role role_filter = 1;
+  bool has_role_filter = 4;
   int32 page = 2;
   int32 page_size = 3;
 }
