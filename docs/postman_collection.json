@@ -1,0 +1,288 @@
+{
+  "info": {
+    "name": "Plateforme de formation - API Gateway",
+    "description": "Collection de test pour les endpoints REST et GraphQL de l'API Gateway (mini-projet Microservices)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:4000" },
+    { "key": "user_id", "value": "" },
+    { "key": "course_id", "value": "" },
+    { "key": "enrollment_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/health"
+      }
+    },
+    {
+      "name": "Users (REST)",
+      "item": [
+        {
+          "name": "Creer un utilisateur (etudiant)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('user_id', body.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Amine Ben Salah\",\n  \"email\": \"amine.postman@example.com\",\n  \"password\": \"motdepasse123\",\n  \"role\": 0\n}"
+            },
+            "url": "{{base_url}}/api/users"
+          }
+        },
+        {
+          "name": "Creer un utilisateur (formateur)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Sami Trabelsi\",\n  \"email\": \"sami.formateur@example.com\",\n  \"password\": \"motdepasse123\",\n  \"role\": 1\n}"
+            },
+            "url": "{{base_url}}/api/users"
+          }
+        },
+        {
+          "name": "Recuperer un utilisateur par id",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/users/{{user_id}}"
+          }
+        },
+        {
+          "name": "Lister tous les utilisateurs",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/users?page=1&page_size=20"
+          }
+        },
+        {
+          "name": "Modifier un utilisateur",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Amine Ben Salah (modifie)\",\n  \"email\": \"amine.postman@example.com\"\n}"
+            },
+            "url": "{{base_url}}/api/users/{{user_id}}"
+          }
+        },
+        {
+          "name": "Supprimer un utilisateur",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/users/{{user_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Courses (REST)",
+      "item": [
+        {
+          "name": "Creer un cours",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('course_id', body.course.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Introduction a Node.js\",\n  \"description\": \"Apprenez les bases de Node.js pas a pas\",\n  \"instructor_id\": \"instructor-001\"\n}"
+            },
+            "url": "{{base_url}}/api/courses"
+          }
+        },
+        {
+          "name": "Ajouter une lecon au cours",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Installation et premier serveur\",\n  \"content_url\": \"https://example.com/lesson1\",\n  \"duration_minutes\": 15\n}"
+            },
+            "url": "{{base_url}}/api/courses/{{course_id}}/lessons"
+          }
+        },
+        {
+          "name": "Recuperer un cours (avec ses lecons)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/courses/{{course_id}}"
+          }
+        },
+        {
+          "name": "Lister tous les cours",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/courses?page=1&page_size=20"
+          }
+        },
+        {
+          "name": "Modifier un cours",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Introduction a Node.js (mise a jour)\",\n  \"description\": \"Description mise a jour\"\n}"
+            },
+            "url": "{{base_url}}/api/courses/{{course_id}}"
+          }
+        },
+        {
+          "name": "Supprimer un cours",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/courses/{{course_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enrollments (REST)",
+      "item": [
+        {
+          "name": "Inscrire un etudiant a un cours",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('enrollment_id', body.enrollment.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": \"{{user_id}}\",\n  \"course_id\": \"{{course_id}}\"\n}"
+            },
+            "url": "{{base_url}}/api/enrollments"
+          }
+        },
+        {
+          "name": "Recuperer une inscription",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/enrollments/{{enrollment_id}}"
+          }
+        },
+        {
+          "name": "Lister les inscriptions d'un etudiant",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/enrollments?student_id={{user_id}}"
+          }
+        },
+        {
+          "name": "Mettre a jour la progression",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completed_lesson_id\": \"lesson-001\",\n  \"progress_percent\": 50\n}"
+            },
+            "url": "{{base_url}}/api/enrollments/{{enrollment_id}}/progress"
+          }
+        },
+        {
+          "name": "Terminer le cours",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/enrollments/{{enrollment_id}}/complete"
+          }
+        }
+      ]
+    },
+    {
+      "name": "GraphQL",
+      "item": [
+        {
+          "name": "Query - Lister les utilisateurs",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"{ users(page: 1, page_size: 10) { id full_name email role created_at } }\"\n}"
+            },
+            "url": "{{base_url}}/graphql"
+          }
+        },
+        {
+          "name": "Query - Cours avec ses lecons",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query GetCourse($id: String!) { course(id: $id) { id title description enrolled_count lessons { id title duration_minutes } } }\",\n  \"variables\": { \"id\": \"{{course_id}}\" }\n}"
+            },
+            "url": "{{base_url}}/graphql"
+          }
+        },
+        {
+          "name": "Mutation - Creer un utilisateur",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CreateUser($full_name: String!, $email: String!, $password: String!, $role: Role) { createUser(full_name: $full_name, email: $email, password: $password, role: $role) { id full_name email role } }\",\n  \"variables\": { \"full_name\": \"Test GraphQL\", \"email\": \"test.graphql@example.com\", \"password\": \"motdepasse123\", \"role\": \"STUDENT\" }\n}"
+            },
+            "url": "{{base_url}}/graphql"
+          }
+        },
+        {
+          "name": "Mutation - Inscrire un etudiant",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation Enroll($student_id: String!, $course_id: String!) { enrollStudent(student_id: $student_id, course_id: $course_id) { id status progress_percent enrolled_at } }\",\n  \"variables\": { \"student_id\": \"{{user_id}}\", \"course_id\": \"{{course_id}}\" }\n}"
+            },
+            "url": "{{base_url}}/graphql"
+          }
+        }
+      ]
+    }
+  ]
+}
